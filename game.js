@@ -110,6 +110,7 @@ var bestScoreLabel = new PIXI.Text('BEST', infoLabelStyle);
 bestScoreLabel.anchor.set(0.5);
 bestScoreLabel.x = SCREEN_WIDTH * 0.80;
 bestScoreLabel.y = 70;
+bestScoreLabel.interactive = true;
 app.stage.addChild(bestScoreLabel);
 
 if (localStorage.getItem('bestScore') == null) {
@@ -183,6 +184,27 @@ retryButton.on('click', function() {
 loseOverlay.addChild(retryButton);
 loseOverlay.visible = false;
 app.stage.addChild(loseOverlay);
+
+// Easter Egg
+var cat = new PIXI.Sprite.from('assets/cat.png');
+var meowSound = PIXI.sound.Sound.from('assets/meow.mp3');
+cat.anchor.set(0.5);
+cat.x = SCREEN_WIDTH * 0.8;
+cat.y = 90;
+cat.zIndex = -1;
+cat.hide = true;
+cat.scale.set(0.15);
+app.stage.addChild(cat);
+
+bestScoreLabel.on('mouseover', function() {
+    if (cat.hide) {
+        meowSound.play();
+    }
+    cat.hide = false;
+})
+bestScoreLabel.on('mouseout', function() {
+    cat.hide = true;
+})
 
 /* ----------------------------------
             Game Logic
@@ -334,7 +356,7 @@ function noAnyMove() {
     return true;
 }
 
-function moveGrid(i, j, dir, pending = false) {
+function moveGrid(i, j, dir) {
     let grid = gameBoard[j][i];
     let destI = i;
     let destJ = j;
@@ -482,5 +504,13 @@ app.ticker.add(function() {
             }
             mergingGrids.splice(mergingGrids.indexOf(grid), 1);
         }
+    }
+
+    // Easter egg
+    if (cat.hide && cat.y != 90) {
+        cat.y += 1;
+    }
+    if (!cat.hide && cat.y != 40) {
+        cat.y -= 1;
     }
 });
